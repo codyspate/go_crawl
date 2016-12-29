@@ -10,6 +10,7 @@ import (
 )
 
 func input() (string) {
+
     scan := bufio.NewScanner(os.Stdin)
     fmt.Print("Input URL: ")
     scan.Scan()
