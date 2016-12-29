@@ -13,7 +13,7 @@ func input() (string) {
     reader := bufio.NewReader(os.Stdin)
     fmt.Print("URL: ")
     Homepage, _ := reader.ReadString('\n')
-    if !(strings.contains(Homepage, "://")){
+    if !(strings.Contains(Homepage, "://")){
 	    Homepage = "http://" + Homepage
 	  }
     return Homepage
