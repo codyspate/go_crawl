@@ -1,6 +1,1 @@
-package crawler
-
-import (
-  "fmt",
-  "html"
-)
+package main
