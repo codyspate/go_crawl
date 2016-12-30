@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"path/filepath"
 	"strings"
 )
 
@@ -26,7 +25,5 @@ func main() {
 	fmt.Println("Domain Name: ", Domain_name)
 	project_name = Domain_name[:strings.Index(Domain_name, ".")]
 	fmt.Println(project_name)
-
-	fmt.Println("The path is !!!!XXXX:   " + filepath.Dir("."+string(filepath.Separator)+"projects"+string(filepath.Separator)+project_name))
 	create_dirs()
 }
