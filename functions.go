@@ -78,6 +78,17 @@ func write_file(path string, text string) {
 	checkError(err)
 }
 
+func append_to_file(path string, data string) {
+	f, err := os.OpenFile(path, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+	if _, err = f.WriteString(data); err != nil {
+		panic(err)
+	}
+}
+
 func create_dirs() {
 	var path bytes.Buffer
 	path.WriteString("projects" + string(filepath.Separator) + project_name)
