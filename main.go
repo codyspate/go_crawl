@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"strings"
+	"os"
 )
 
 // Global Variables
@@ -26,4 +27,5 @@ func main() {
 	project_name = Domain_name[:strings.Index(Domain_name, ".")]
 	fmt.Println(project_name)
 	create_dirs()
+	os.Exit(0)
 }

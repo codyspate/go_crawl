@@ -44,9 +44,9 @@ func get_domain_name(rawurl string) string {
 func create_dirs() {
 	var path bytes.Buffer
 	path.WriteString("projects" + string(filepath.Separator) + project_name)
-	fmt.Println("The path is !!!!XXXX:   " + path.String())
-	e := os.MkdirAll(path.String(), os.ModePerm)
-	check(e)
+	fmt.Println("The path is !!!!XXXX: " + path.String())
+	os.MkdirAll(path.String(), os.ModePerm)
+	// check(e)
 	queue_file = filepath.Join(path.String(), "queue.txt")
 	crawled_file = filepath.Join(path.String(), "crawled.txt")
 	errors_file = filepath.Join(path.String(), "errors.txt")
@@ -54,8 +54,8 @@ func create_dirs() {
 	a := [5]string{queue_file, crawled_file, errors_file, summary_file}
 	for i := 0; i < len(a); i++ {
 		fmt.Println(a[i])
-		f, e := os.Create(a[i])
-		check(e)
+		f, _ := os.Create(a[i])
+		// check(e)
 		f.Close()
 	}
 }
