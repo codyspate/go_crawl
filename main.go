@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
-	"strings"
 	"os"
+	"strings"
 )
+
+var VERSION string = "1.0"
 
 // Global Variables
 var base_url string

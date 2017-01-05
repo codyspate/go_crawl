@@ -146,3 +146,16 @@ func create_data_files(project_name string, base_url string) {
 		write_file(errors, "")
 	}
 }
+
+func update_summary(
+	path string, pname string, url string,
+	pdf string, html string, media string,
+	other string, errors string, pages string,
+	size string, queue string, crawled string) {
+	delete_file_contents(path)
+	append_to_file(path, fmt.Sprintf("Cal Crawler v%s\n\n", VERSION))
+	append_to_file(path, fmt.Sprintf("Website: %s\n", pname))
+	append_to_file(path, fmt.Sprintf("URL: %s\n\n", url))
+	append_to_file(path, fmt.Sprintf("PDF count: %s\nHTML/HTML count: %s\nMedia files: %s\nOther: %s\nErrors: %s\n\nTotal Number of Pages: %s\nTotal size: %sMB\n\n", pdf, html, media, other, errors, pages, size))
+	append_to_file(path, fmt.Sprintf("Queue: %s\nCrawled: %s\n\n", queue, crawled))
+}
