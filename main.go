@@ -27,17 +27,47 @@ func check(e error) {
 	}
 }
 
-func create_dirs() {
+// exists returns whether the given file or directory exists or not
+func exists(path string) bool {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true
+	}
+	if os.IsNotExist(err) {
+		return false
+	}
+	fmt.Println(err)
+	return true
+}
+
+func writeFile(path string, text string) {
+	// open file using READ & WRITE permission
+	var file, err = os.OpenFile(path, os.O_RDWR, 0644)
+	checkError(err)
+	defer file.Close()
+
+	// write some text to file
+	_, err = file.WriteString(text)
+	checkError(err)
+	_, err = file.WriteString(text)
+	checkError(err)
+
+	// save changes
+	err = file.Sync()
+	checkError(err)
+}
+
+func createDirs() {
 	var path bytes.Buffer
 	path.WriteString("projects" + string(filepath.Separator) + ProjectName)
 	fmt.Println("The path is !!!!XXXX: " + path.String())
 	os.MkdirAll(path.String(), os.ModePerm)
 	// check(e)
-	queue_file := filepath.Join(path.String(), "queue.txt")
-	crawled_file := filepath.Join(path.String(), "crawled.txt")
-	errors_file := filepath.Join(path.String(), "errors.txt")
-	summary_file := filepath.Join(path.String(), "summary.txt")
-	a := [5]string{queue_file, crawled_file, errors_file, summary_file}
+	queueFile := filepath.Join(path.String(), "queue.txt")
+	crawledFile := filepath.Join(path.String(), "crawled.txt")
+	errorsFile := filepath.Join(path.String(), "errors.txt")
+	summaryFile := filepath.Join(path.String(), "summary.txt")
+	a := [5]string{queueFile, crawledFile, errorsFile, summaryFile}
 	for i := 0; i < len(a); i++ {
 		fmt.Println(a[i])
 		f, _ := os.Create(a[i])
@@ -54,11 +84,22 @@ func getDomainName(rawurl string) string {
 	return u.Host
 }
 
+/*
+Crawl crawls a website at the given url and will start
+a number of concurrent processes depending on the threads input
+
+Params:
+	url <string> -----
+		http address to website, can be IP or domain name, Ex. 71stsog.com, 12.345.45.67, http://google.com/
+
+	threads <int> ----
+		integer to specifiy the amount of concurrent processes to run
+*/
 func Crawl(url string, threads int) {
 	fmt.Println("go_crawl Version: ", VERSION)
 	DomainName := getDomainName(url)
 	fmt.Println("URL: ", DomainName)
 	ProjectName = DomainName[:strings.Index(DomainName, ".")]
 	fmt.Println(ProjectName)
-	create_dirs()
+	createDirs()
 }
