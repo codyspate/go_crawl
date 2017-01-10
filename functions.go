@@ -1,52 +1,25 @@
-package main
+package go_crawl
 
 import (
-	"bufio"
-	"bytes"
 	"fmt"
-	"net/url"
 	"os"
 	"path/filepath"
-	"strings"
 	//"io/ioutil"
 )
 
-func checkError(err error) {
-	if err != nil {
-		fmt.Println(err.Error())
-		os.Exit(0)
-	}
-}
-
-func check(e error) {
-	if e != nil {
-		fmt.Println("*********************ERROR*******************")
-		fmt.Println(e)
-		panic(e)
-	}
-}
-
-func input() string {
-	scan := bufio.NewScanner(os.Stdin)
-	fmt.Print("Input URL: ")
-	scan.Scan()
-	Homepage := scan.Text()
-	if !(strings.Contains(Homepage, "://")) {
-		Homepage = "http://" + Homepage
-		if !(strings.Contains(string(Homepage[len(Homepage)-1]), "/")) {
-			Homepage = Homepage + "/"
-		}
-	}
-	return Homepage
-}
-
-func get_domain_name(rawurl string) string {
-	u, err := url.Parse(rawurl)
-	fmt.Println("Scheme: ", u.Scheme)
-	fmt.Println("Host: ", u.Host)
-	check(err)
-	return u.Host
-}
+// func input() string {
+// 	scan := bufio.NewScanner(os.Stdin)
+// 	fmt.Print("Input URL: ")
+// 	scan.Scan()
+// 	Homepage := scan.Text()
+// 	if !(strings.Contains(Homepage, "://")) {
+// 		Homepage = "http://" + Homepage
+// 		if !(strings.Contains(string(Homepage[len(Homepage)-1]), "/")) {
+// 			Homepage = Homepage + "/"
+// 		}
+// 	}
+// 	return Homepage
+// }
 
 // exists returns whether the given file or directory exists or not
 func exists(path string) bool {
@@ -86,25 +59,6 @@ func append_to_file(path string, data string) {
 	defer f.Close()
 	if _, err = f.WriteString(data); err != nil {
 		panic(err)
-	}
-}
-
-func create_dirs() {
-	var path bytes.Buffer
-	path.WriteString("projects" + string(filepath.Separator) + project_name)
-	fmt.Println("The path is !!!!XXXX: " + path.String())
-	os.MkdirAll(path.String(), os.ModePerm)
-	// check(e)
-	queue_file = filepath.Join(path.String(), "queue.txt")
-	crawled_file = filepath.Join(path.String(), "crawled.txt")
-	errors_file = filepath.Join(path.String(), "errors.txt")
-	summary_file = filepath.Join(path.String(), "summary.txt")
-	a := [5]string{queue_file, crawled_file, errors_file, summary_file}
-	for i := 0; i < len(a); i++ {
-		fmt.Println(a[i])
-		f, _ := os.Create(a[i])
-		// check(e)
-		f.Close()
 	}
 }
 
@@ -159,3 +113,23 @@ func update_summary(
 	append_to_file(path, fmt.Sprintf("PDF count: %s\nHTML/HTML count: %s\nMedia files: %s\nOther: %s\nErrors: %s\n\nTotal Number of Pages: %s\nTotal size: %sMB\n\n", pdf, html, media, other, errors, pages, size))
 	append_to_file(path, fmt.Sprintf("Queue: %s\nCrawled: %s\n\n", queue, crawled))
 }
+
+func stringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
+	return false
+}
+
+// Iterate through a set, each item will be a line in a file
+// func set_to_file(links string, file_name string) {
+
+//     try:
+//         with open(file_name,"w") as f:
+//             for l in sorted(links):
+//                 f.write(l+"\n")
+//     except Exception as e:
+//         print(str(e))
+// }
