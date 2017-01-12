@@ -79,6 +79,12 @@ func createDirs() {
 }
 
 func getDomainName(rawurl string) string {
+	if rawurl[:7] != "http://" {
+		strings.Join("http://", rawurl)
+	}
+	if rawurl[len(rawurl) - 1:] != "/" {
+		strings.Join(rawurl, "/")
+	}
 	u, err := url.Parse(rawurl)
 	fmt.Println("Scheme: ", u.Scheme)
 	fmt.Println("Host: ", u.Host)
