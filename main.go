@@ -44,6 +44,7 @@ func exists(path string) bool {
 	return true
 }
 
+// Author: Dixon Begay
 func writeFile(path string, text string) {
 	// open file using READ & WRITE permission
 	var file, err = os.OpenFile(path, os.O_RDWR, 0644)
@@ -61,6 +62,7 @@ func writeFile(path string, text string) {
 	checkError(err)
 }
 
+// Authors: Timmothy Spate, Dixon Begay
 func createDirs() {
 	var path bytes.Buffer
 	path.WriteString("projects" + string(filepath.Separator) + projectName)
@@ -80,6 +82,7 @@ func createDirs() {
 	}
 }
 
+// Author: Dixon Begay
 func getProperURL(rawurl string) *url.URL {
 	fmt.Println("Inputed URL: ", rawurl)
 	if rawurl[:7] != "http://" {
@@ -105,6 +108,7 @@ func getProperURL(rawurl string) *url.URL {
 	return u
 }
 
+// Author: Dixon Begay
 func readWebPage(URL string) string {
 	resp, err := http.Get(URL)
 	if err != nil {
@@ -117,6 +121,7 @@ func readWebPage(URL string) string {
 	return string(bytes)
 }
 
+// Authors: Timmoth Spate, Dixon Begay
 func addLinksToQueue(links []string) {
 	for key, value := range links {
 		fmt.Println(key)
@@ -149,6 +154,7 @@ func stringInSlice(a string, list []string) bool {
 	return false
 }
 
+// Author: Dixon Begay
 func crawlPage(pageURL string) {
 	if !stringInSlice(pageURL, crawled) {
 		fmt.Println("Now crawling: ", pageURL)
@@ -160,6 +166,8 @@ func crawlPage(pageURL string) {
 /*
 Crawl crawls a website at the given url and will start
 a number of concurrent processes depending on the threads input
+
+Author: Dixon Begay, Timmothy Spate
 
 Params:
 	url <string> -----
