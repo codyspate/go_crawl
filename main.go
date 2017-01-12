@@ -9,8 +9,10 @@ import (
 	"strings"
 )
 
-var VERSION string = "1.0"
-var ProjectName string
+var version = "1.0"
+var projectName string
+var crawled []string
+var links []string
 
 func checkError(err error) {
 	if err != nil {
@@ -59,7 +61,7 @@ func writeFile(path string, text string) {
 
 func createDirs() {
 	var path bytes.Buffer
-	path.WriteString("projects" + string(filepath.Separator) + ProjectName)
+	path.WriteString("projects" + string(filepath.Separator) + projectName)
 	fmt.Println("The path is !!!!XXXX: " + path.String())
 	os.MkdirAll(path.String(), os.ModePerm)
 	// check(e)
@@ -84,6 +86,46 @@ func getDomainName(rawurl string) string {
 	return u.Host
 }
 
+func addLinksToQueue(links []string) {
+	for key, value := range links {
+		fmt.Println(key)
+		fmt.Println(value)
+	}
+	// for url in links:
+	//     if (url in Spider.queue) or (url in Spider.crawled):
+	//         continue
+	//     if not Spider.domain_name in get_domain_name(url):
+	//         # try:
+	//         #     ext_link = quote(url, safe="/:()=?#%&")
+	//         #     response = urlopen(ext_link, timeout=10)
+	//         #     response.close()
+	//         # except Exception as e:
+	//         #     Spider.num_broken_ext_links += 1
+	//         #     append_to_file(Spider.ext_link_errors_file, url + " : " + str(e))
+	//         continue
+	//     url = quote(url, safe="%/:=&?~+!$,;'@()*[]#")
+	//     if '%20' in url[-3:]:
+	//         url = url[:-3]
+	//     Spider.queue.add(url)
+}
+
+func stringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
+	return false
+}
+
+func crawlPage(pageURL string) {
+	if !stringInSlice(pageURL, crawled) {
+		fmt.Println("Now crawling: ", pageURL)
+
+		apppend(crawled, pageURL)
+	}
+}
+
 /*
 Crawl crawls a website at the given url and will start
 a number of concurrent processes depending on the threads input
@@ -96,10 +138,14 @@ Params:
 		integer to specifiy the amount of concurrent processes to run
 */
 func Crawl(url string, threads int) {
-	fmt.Println("go_crawl Version: ", VERSION)
+	fmt.Println("go_crawl Version: ", version)
 	DomainName := getDomainName(url)
 	fmt.Println("URL: ", DomainName)
-	ProjectName = DomainName[:strings.Index(DomainName, ".")]
-	fmt.Println(ProjectName)
+	projectName = DomainName[:strings.Index(DomainName, ".")]
+	fmt.Println(projectName)
 	createDirs()
+	crawlPage(url)
+	for i := 0; i <= threads; i++ {
+		go crawlPage(links[0])
+	}
 }
