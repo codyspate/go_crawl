@@ -3,6 +3,8 @@ package go_crawl
 import (
 	"bytes"
 	"fmt"
+	"io/ioutil"
+	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -78,18 +80,41 @@ func createDirs() {
 	}
 }
 
-func getDomainName(rawurl string) string {
+func getProperURL(rawurl string) *url.URL {
+	fmt.Println("Inputed URL: ", rawurl)
 	if rawurl[:7] != "http://" {
-		strings.Join("http://", rawurl)
+		fmt.Println("No http header... Adding to url")
+		rawurl = fmt.Sprintf("http://" + rawurl)
+		fmt.Println(rawurl)
 	}
-	if rawurl[len(rawurl) - 1:] != "/" {
-		strings.Join(rawurl, "/")
+	if !(strings.Contains(rawurl, ".com")) {
+		fmt.Println("No '.com' in url... Adding to url")
+		rawurl = fmt.Sprintf(rawurl + ".com")
+		fmt.Println(rawurl)
 	}
+	if rawurl[len(rawurl)-1:] != "/" {
+		fmt.Println("No trailing forward slash... Adding to url")
+		rawurl = fmt.Sprintf(rawurl + "/")
+		fmt.Println(rawurl)
+	}
+	fmt.Println("Using this url to parse: ", rawurl)
 	u, err := url.Parse(rawurl)
 	fmt.Println("Scheme: ", u.Scheme)
 	fmt.Println("Host: ", u.Host)
 	check(err)
-	return u.Host
+	return u
+}
+
+func readWebPage(URL string) string {
+	resp, err := http.Get(URL)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(0)
+	}
+
+	defer resp.Body.Close()
+	bytes, err := ioutil.ReadAll(resp.Body)
+	return string(bytes)
 }
 
 func addLinksToQueue(links []string) {
@@ -127,8 +152,8 @@ func stringInSlice(a string, list []string) bool {
 func crawlPage(pageURL string) {
 	if !stringInSlice(pageURL, crawled) {
 		fmt.Println("Now crawling: ", pageURL)
-
-		apppend(crawled, pageURL)
+		crawled = append(crawled, pageURL)
+		readWebPage(pageURL)
 	}
 }
 
@@ -143,15 +168,16 @@ Params:
 	threads <int> ----
 		integer to specifiy the amount of concurrent processes to run
 */
-func Crawl(url string, threads int) {
+func Crawl(rawURL string, threads int) {
 	fmt.Println("go_crawl Version: ", version)
-	DomainName := getDomainName(url)
-	fmt.Println("URL: ", DomainName)
-	projectName = DomainName[:strings.Index(DomainName, ".")]
+	url := getProperURL(rawURL)
+	fmt.Println("URL: ", url)
+	projectName = url.Host[:strings.Index(url.Host, ".")]
 	fmt.Println(projectName)
 	createDirs()
-	crawlPage(url)
-	for i := 0; i <= threads; i++ {
-		go crawlPage(links[0])
-	}
+	crawlPage(url.String())
+	fmt.Println("Crawled slice:\n", crawled)
+	// for i := 0; i <= threads; i++ {
+	// 	go crawlPage(links[0])
+	// }
 }
