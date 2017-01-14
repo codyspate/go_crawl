@@ -3,12 +3,17 @@ package go_crawl
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"unicode/utf8"
+
+	"golang.org/x/net/html"
 )
 
 var version = "1.0"
@@ -42,6 +47,62 @@ func exists(path string) bool {
 	}
 	fmt.Println(err)
 	return true
+}
+
+func parseHTMLforAnchorTags(r io.Reader) []string {
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+	// Parse HTML for Anchor Tags //
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~//
+	fmt.Println("Parsing html for anchor tags")
+	page := html.NewTokenizer(r)
+	fmt.Println("page: ", page)
+	fmt.Println("page.Raw(): ", page.Raw())
+	fmt.Println("string(page.Raw())", string(page.Raw()))
+	fmt.Println("Err: ", page.Err())
+	fmt.Println("Token().String(): ", page.Token().String())
+	fmt.Println("Token().Data: ", page.Token().Data)
+	fmt.Println("string(page.Text()): ", string(page.Text()))
+	fmt.Println("page.Text(): ", page.Text())
+	for {
+		fmt.Println("Starting for loop")
+		fmt.Println(page.Text())
+		tokenType := page.Next()
+		fmt.Println("tokeType: ", tokenType)
+		if tokenType == html.ErrorToken {
+			fmt.Println("ErrorToken")
+			return links
+		}
+		token := page.Token()
+		if tokenType == html.StartTagToken && token.DataAtom.String() == "a" {
+			for _, attr := range token.Attr {
+				if attr.Key == "href" {
+					fmt.Println(attr.Val)
+					// tl := trimHash(attr.Val)
+					// col = append(col, tl)
+					// resolv(&links, col)
+				}
+			}
+		}
+		// switch {
+		// case tt == html.ErrorToken:
+		// 	fmt.Println("End of the document, we're done...")
+		// 	// End of the document, we're done
+		// 	return
+		// case tt == html.StartTagToken:
+		// 	t := z.Token()
+
+		// 	if t.Data == "a" { // is anchor
+		// 		fmt.Println("We found a link!")
+		// 		fmt.Println(t)
+		// 		fmt.Println(t.Data)
+		// 	}
+		// default:
+		// 	fmt.Println(tt)
+		// 	fmt.Println(z.Token())
+		// 	fmt.Println(string(z.Token().Data))
+		// 	fmt.Println(string(z.Raw()))
+		// }
+	}
 }
 
 // Author: Dixon Begay
@@ -85,22 +146,22 @@ func createDirs() {
 // Author: Dixon Begay
 func getProperURL(rawurl string) *url.URL {
 	fmt.Println("Inputed URL: ", rawurl)
-	if rawurl[:7] != "http://" {
-		fmt.Println("No http header... Adding to url")
+	if !strings.Contains(rawurl, "http://") && !strings.Contains(rawurl, "https://") {
+		// fmt.Println("No http header... Adding to url")
 		rawurl = fmt.Sprintf("http://" + rawurl)
-		fmt.Println(rawurl)
+		// fmt.Println(rawurl)
 	}
 	if !(strings.Contains(rawurl, ".com")) {
-		fmt.Println("No '.com' in url... Adding to url")
+		// fmt.Println("No '.com' in url... Adding to url")
 		rawurl = fmt.Sprintf(rawurl + ".com")
-		fmt.Println(rawurl)
+		// fmt.Println(rawurl)
 	}
 	if rawurl[len(rawurl)-1:] != "/" {
-		fmt.Println("No trailing forward slash... Adding to url")
+		// fmt.Println("No trailing forward slash... Adding to url")
 		rawurl = fmt.Sprintf(rawurl + "/")
-		fmt.Println(rawurl)
+		// fmt.Println(rawurl)
 	}
-	fmt.Println("Using this url to parse: ", rawurl)
+	// fmt.Println("Using this url to parse: ", rawurl)
 	u, err := url.Parse(rawurl)
 	fmt.Println("Scheme: ", u.Scheme)
 	fmt.Println("Host: ", u.Host)
@@ -109,7 +170,7 @@ func getProperURL(rawurl string) *url.URL {
 }
 
 // Author: Dixon Begay
-func readWebPage(URL string) string {
+func getLinksFromPage(URL string) string {
 	resp, err := http.Get(URL)
 	if err != nil {
 		fmt.Println(err)
@@ -118,6 +179,9 @@ func readWebPage(URL string) string {
 
 	defer resp.Body.Close()
 	bytes, err := ioutil.ReadAll(resp.Body)
+	fmt.Println("UTF-8? ", utf8.Valid(bytes))
+	fmt.Println("HTML: ", string(bytes))
+	parseHTMLforAnchorTags(resp.Body)
 	return string(bytes)
 }
 
@@ -158,8 +222,8 @@ func stringInSlice(a string, list []string) bool {
 func crawlPage(pageURL string) {
 	if !stringInSlice(pageURL, crawled) {
 		fmt.Println("Now crawling: ", pageURL)
-		crawled = append(crawled, pageURL)
-		readWebPage(pageURL)
+		crawled = append(crawled, pageURL) // In the future this will be
+		getLinksFromPage(pageURL)
 	}
 }
 
@@ -181,11 +245,14 @@ func Crawl(rawURL string, threads int) {
 	url := getProperURL(rawURL)
 	fmt.Println("URL: ", url)
 	projectName = url.Host[:strings.Index(url.Host, ".")]
-	fmt.Println(projectName)
+	fmt.Println("Project Name: ", projectName)
 	createDirs()
 	crawlPage(url.String())
 	fmt.Println("Crawled slice:\n", crawled)
 	// for i := 0; i <= threads; i++ {
 	// 	go crawlPage(links[0])
 	// }
+
+	fmt.Println("Done...")
+	os.Exit(0)
 }
