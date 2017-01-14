@@ -77,20 +77,11 @@ func updateSummary(
 	other string, errors string, pages string,
 	size string, queue string, crawled string) {
 	deleteFileContents(path)
-	appendToFile(path, fmt.Sprintf("Cal Crawler v%s\n\n", VERSION))
+	appendToFile(path, fmt.Sprintf("Cal Crawler v%s\n\n", version))
 	appendToFile(path, fmt.Sprintf("Website: %s\n", pname))
 	appendToFile(path, fmt.Sprintf("URL: %s\n\n", url))
 	appendToFile(path, fmt.Sprintf("PDF count: %s\nHTML/HTML count: %s\nMedia files: %s\nOther: %s\nErrors: %s\n\nTotal Number of Pages: %s\nTotal size: %sMB\n\n", pdf, html, media, other, errors, pages, size))
 	appendToFile(path, fmt.Sprintf("Queue: %s\nCrawled: %s\n\n", queue, crawled))
-}
-
-func stringInSlice(a string, list []string) bool {
-	for _, b := range list {
-		if b == a {
-			return true
-		}
-	}
-	return false
 }
 
 // Iterate through a set, each item will be a line in a file
